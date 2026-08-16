@@ -1,18 +1,70 @@
 package parser
 
 import (
-	"log"
+	"bytes"
+	"encoding/json"
+	"flag"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 )
 
+var update = flag.Bool("update", false, "regenerate .golden files")
+
 func TestParser(t *testing.T) {
-	src, err := os.ReadFile("./testdata/unicode.txt")
+	dir, err := os.ReadDir("testdata")
 	if err != nil {
-		t.Fatalf("failed to open test file: %v", err)
+		t.Fatalf("reading directory: %v", err)
 	}
 
-	tokens, err := Parse(src)
+	for _, entry := range dir {
+		filename := filepath.Join("testdata", entry.Name())
+		ext := filepath.Ext(entry.Name())
 
-	log.Printf("%#v", tokens)
+		if entry.IsDir() {
+			continue
+		}
+
+		if ext == ".golden" {
+			continue
+		}
+		
+		t.Run(entry.Name(), func(t *testing.T) {
+			src, err := os.ReadFile(filename)
+			if err != nil {
+				t.Fatalf("reading src file: %v", err)
+			}
+
+			tokens, err := Parse(src)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			out, err := json.MarshalIndent(tokens, "", "  ")
+			if err != nil {
+				t.Fatalf("marhsalling tokens to JSON: %v", err)
+			}
+
+			goldenFile, _, _ := strings.Cut(filename, ext)
+			goldenFile += ".golden"
+
+			if *update {
+				err = os.WriteFile(goldenFile, out, os.ModeTemporary)
+				if err != nil {
+					t.Fatalf("writing golden file: %v", err)
+				}
+				return
+			}
+
+			golden, err := os.ReadFile(goldenFile)
+			if err != nil {
+				t.Fatalf("reading golden file: %v", err)
+			}
+
+			if !bytes.Equal(out, golden) {
+				t.Error("parsed bytes do not equal to the golden bytes")
+			}
+		})
+	}
 }
