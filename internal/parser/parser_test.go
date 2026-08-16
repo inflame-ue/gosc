@@ -29,7 +29,7 @@ func TestParser(t *testing.T) {
 		if ext == ".golden" {
 			continue
 		}
-		
+
 		t.Run(entry.Name(), func(t *testing.T) {
 			src, err := os.ReadFile(filename)
 			if err != nil {
@@ -64,6 +64,33 @@ func TestParser(t *testing.T) {
 
 			if !bytes.Equal(out, golden) {
 				t.Error("parsed bytes do not equal to the golden bytes")
+			}
+		})
+	}
+}
+
+func TestParserInvalid(t *testing.T) {
+	dir, err := os.ReadDir("testdata/invalid")
+	if err != nil {
+		t.Fatalf("reading directory: %v", err)
+	}
+
+	for _, entry := range dir {
+		filename := filepath.Join("testdata/invalid", entry.Name())
+
+		if entry.IsDir() {
+			continue
+		}
+
+		t.Run(entry.Name(), func(t *testing.T) {
+			src, err := os.ReadFile(filename)
+			if err != nil {
+				t.Fatalf("reading file: %v", err)
+			}
+
+			_, err = Parse(src)
+			if err == nil {
+				t.Error("expected parsing error, got err = nil")
 			}
 		})
 	}
