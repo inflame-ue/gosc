@@ -50,7 +50,7 @@ func TestParser(t *testing.T) {
 			goldenFile += ".golden"
 
 			if *update {
-				err = os.WriteFile(goldenFile, out, os.ModeTemporary)
+				err = os.WriteFile(goldenFile, out, 0o644)
 				if err != nil {
 					t.Fatalf("writing golden file: %v", err)
 				}
