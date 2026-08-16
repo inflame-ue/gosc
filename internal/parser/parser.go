@@ -62,7 +62,8 @@ func Parse(src []byte) ([]Token, error) {
 			col = 1
 		}
 
-		col += len(token.Word) + 1
+		// type cast to rune to count chars, not bytes
+		col += len([]rune(token.Word)) + 1
 		buf = nil
 	}
 
@@ -75,6 +76,6 @@ func Parse(src []byte) ([]Token, error) {
 		}
 		tokens = append(tokens, token)
 	}
-	
+
 	return tokens, nil
 }
