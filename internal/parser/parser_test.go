@@ -1,18 +1,18 @@
 package parser
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"testing"
 )
 
 func TestParser(t *testing.T) {
-	src, err := os.ReadFile("./testdata/simple.txt")
+	src, err := os.ReadFile("./testdata/only_punctuation.txt")
 	if err != nil {
 		t.Fatalf("failed to open test file: %v", err)
 	}
 
 	tokens, err := Parse(src)
 
-	fmt.Printf("%#v", tokens)
+	log.Printf("%#v", tokens == nil)
 }

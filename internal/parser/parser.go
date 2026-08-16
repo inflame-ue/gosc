@@ -31,9 +31,11 @@ func Parse(src []byte) ([]Token, error) {
 
 	var tokens []Token
 	var buf []rune
-	var line, col int
+	var line int
+	var col = 1
 
 	for i, w := 0, 0; i < len(src); i += w {
+		// the idiomatic way to handle non-uniform rune decodes
 		c, width := utf8.DecodeRune(src[i:])
 		w = width
 
@@ -42,12 +44,7 @@ func Parse(src []byte) ([]Token, error) {
 			continue
 		}
 
-		col++
-		if c == '\n' {
-			line++
-			col = 0
-		}
-
+		// no letters accumulated on non-letter char hit; skip
 		if len(buf) == 0 {
 			continue
 		}
@@ -59,16 +56,25 @@ func Parse(src []byte) ([]Token, error) {
 		}
 		tokens = append(tokens, token)
 
-		col += len(token.Word)
+		// reset col and increment line if we hit /n
+		if c == '\n' {
+			line++
+			col = 1
+		}
+
+		col += len(token.Word) + 1
 		buf = nil
 	}
 
-	token := Token{
-		Word: string(buf),
-		Line: line,
-		Col:  col,
+	// flush the last token from buf
+	if len(buf) != 0 {
+		token := Token{
+			Word: string(buf),
+			Line: line,
+			Col:  col,
+		}
+		tokens = append(tokens, token)
 	}
-	tokens = append(tokens, token)
-
+	
 	return tokens, nil
 }
