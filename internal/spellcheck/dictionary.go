@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type Dictionary map[string]struct{}
@@ -18,7 +19,8 @@ func LoadDictionary(filename string) (Dictionary, error) {
 	var dict = make(map[string]struct{})
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		dict[scanner.Text()] = struct{}{}
+		word := strings.ToLower(scanner.Text())
+		dict[word] = struct{}{}
 	}
 
 	return dict, nil

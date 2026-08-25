@@ -1,23 +1,31 @@
 package spellcheck
 
 import (
+	"strings"
+
 	"github.com/inflame-ue/gosc/internal/parser"
 )
 
 type Misspelling struct {
-	Word string
-	Line, Col      int
+	Word      string
+	Line, Col int
 }
 
-func Spellcheck(tokens []parser.Token, dict Dictionary) []Misspelling {
+func Check(tokens []parser.Token, dict Dictionary) []Misspelling {
 	var misspelled []Misspelling
 
 	for _, token := range tokens {
-		if _, ok := dict[token.Word]; ok {
+		word := strings.ToLower(token.Word)
+		if _, ok := dict[word]; ok {
 			continue
 		}
 
-		misspelled = append(misspelled, Misspelling(token))
+		misspelling := Misspelling{
+			Word: token.Word,
+			Line: token.Line,
+			Col:  token.Col,
+		}
+		misspelled = append(misspelled, misspelling)
 	}
 
 	return misspelled
