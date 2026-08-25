@@ -24,13 +24,29 @@ func TestCheck(t *testing.T) {
 			dict: dictionary,
 			want: nil,
 		},
-		"actual misspelled": {
+		"uppercase no misspelled": {
+			tokens: []parser.Token{
+				parser.Token{Word: "HELLO", Line: 0, Col: 0},
+			},
+			dict: dictionary,
+			want: nil,
+		},
+		"misspelled": {
 			tokens: []parser.Token{
 				parser.Token{Word: "helo", Line: 0, Col: 0},
 			},
 			dict: dictionary,
 			want: []Misspelling{
 				Misspelling{Word: "helo", Line: 0, Col: 0},
+			},
+		},
+		"uppercase misspelled": {
+			tokens: []parser.Token{
+				parser.Token{Word: "HELO", Line: 0, Col: 0},
+			},
+			dict: dictionary,
+			want: []Misspelling{
+				Misspelling{Word: "HELO", Line: 0, Col: 0},
 			},
 		},
 	}
