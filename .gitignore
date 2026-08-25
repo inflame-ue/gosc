@@ -26,3 +26,6 @@ testdata/
 
 # binary
 gosc
+
+# dictionaries directory
+dictionary/
